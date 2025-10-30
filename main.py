@@ -4,8 +4,8 @@ Instantiate all your classes here.
 '''
 import argparse
 import sys
-from main_project_package import project_root
-from main_project_package.SimpleClass import SimpleClass
+from urbanisation_package import project_root
+from urbanisation_package.SampleClass import SimpleClass
 
 
 def parse_input_args(argv):
