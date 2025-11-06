@@ -1,20 +1,38 @@
 from geopy.geocoders import Nominatim
 
-# Создаем объект геокодера один раз
 geocoder = Nominatim(user_agent="rse-course")
 
 def get_coordinates(place_name):
     """
-    Возвращает список координат для переданного названия места.
+    Возвращает список найденных мест с полной информацией.
+    Каждый элемент — словарь:
+    {
+        'address': полный адрес,
+        'latitude': широта,
+        'longitude': долгота
+    }
     """
-    location_list = geocoder.geocode(place_name, exactly_one=False)
-    if not location_list:
-        return []
-    # Составляем список координат (широта, долгота)
-    return [(loc.latitude, loc.longitude) for loc in location_list]
+    try:
+        location_list = geocoder.geocode(place_name, exactly_one=False, timeout=10)
+        if not location_list:
+            return []
 
-# Пример использования при запуске напрямую
+        results = []
+        for loc in location_list:
+            results.append({
+                'address': loc.address,
+                'latitude': loc.latitude,
+                'longitude': loc.longitude
+            })
+        return results
+
+    except Exception as e:
+        print("Ошибка геокодирования:", e)
+        return []
+
+# Тестовый запуск
 if __name__ == "__main__":
     place = "Tallinn"
     coords = get_coordinates(place)
-    print(f"Координаты для {place}: {coords}")
+    for loc in coords:
+        print(loc)
