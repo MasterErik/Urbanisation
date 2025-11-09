@@ -5,48 +5,8 @@ import unittest
 from staticmap3 import StaticMap, CircleMarker
 
 # ===============================
-# 1. Функции работы с координатами
+# 1. Класс StaticMapGenerator
 # ===============================
-
-def get_coordinates(address: str):
-    """
-    Простейший пример: возвращает координаты по имени города или локации.
-    Так как у нас нет API, можно сделать словарь с тестовыми адресами.
-    """
-    sample_coords = {
-        "Красная площадь, Москва": (55.7540471, 37.620405),
-        "Таллин, Эстония": (59.437, 24.7536)
-    }
-    coords = sample_coords.get(address)
-    if coords:
-        print(f"📍 Адрес: {address}")
-        print(f"Координаты: {coords}")
-        return coords
-    else:
-        print(f"❌ Координаты для '{address}' не найдены")
-        return None
-
-def get_address(lat: float, lng: float):
-    """
-    Обратное преобразование координат в адрес (только пример).
-    """
-    sample_addresses = {
-        (55.7540471, 37.620405): "Красная площадь, Москва",
-        (59.437, 24.7536): "Таллин, Эстония"
-    }
-    addr = sample_addresses.get((lat, lng))
-    if addr:
-        print(f"🌍 Координаты: {lat}, {lng}")
-        print(f"Адрес: {addr}")
-        return addr
-    else:
-        print(f"❌ Адрес для координат {lat}, {lng} не найден")
-        return None
-
-# ===============================
-# 2. Класс StaticMapGenerator
-# ===============================
-
 class StaticMapGenerator:
     """
     Генератор статических карт с использованием staticmap3.
@@ -57,28 +17,44 @@ class StaticMapGenerator:
         self.zoom = zoom
 
     def get_map_image(self, coordinates):
-        """
-        Возвращает объект PIL.Image с картой.
-        """
         lat, lng = coordinates
         m = StaticMap(self.width, self.height)
         marker = CircleMarker((lng, lat), 'red', 12)
         m.add_marker(marker)
-        image = m.render()
-        return image
+        return m.render()
 
     def save_map(self, coordinates, filename="map.png"):
-        """
-        Сохраняет карту в файл PNG.
-        """
         img = self.get_map_image(coordinates)
         img.save(filename)
         return filename
 
 # ===============================
-# 3. Тесты для StaticMapGenerator
+# 2. Словарь адресов
 # ===============================
+sample_addresses = {
+    "Красная площадь, Москва": (55.7540471, 37.620405),
+    "Таллин, Эстония": (59.437, 24.7536)
+}
 
+# ===============================
+# 3. Основной блок
+# ===============================
+if __name__ == "__main__":
+    generator = StaticMapGenerator(width=400, height=300, zoom=14)
+
+    for address, coords in sample_addresses.items():
+        lat, lng = coords
+        print("\n📍 Адрес:", address)
+        print(f"Координаты: широта={lat}, долгота={lng}")
+
+        # Генерация карты
+        filename = f"{address.replace(',', '').replace(' ', '_')}.png"
+        generator.save_map(coords, filename)
+        print(f"🗺️ Карта сохранена: {filename}")
+
+# ===============================
+# 4. Тесты для StaticMapGenerator
+# ===============================
 class TestStaticMapGenerator(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = Path("tmp_test_maps")
@@ -116,18 +92,22 @@ class TestStaticMapGenerator(unittest.TestCase):
 # ===============================
 # 4. Основной запуск
 # ===============================
-
 if __name__ == "__main__":
-    # Получаем координаты из "адреса"
-    coords = get_coordinates("Красная площадь, Москва")
+    generator = StaticMapGenerator(width=400, height=300, zoom=14)
 
-    if coords:
+    for address, coords in sample_addresses.items():
         lat, lng = coords
-        get_address(lat, lng)
+
+        # Адрес → координаты
+        print("\n📍 Адрес:", address)
+        print(f"Координаты по адресу: широта={lat}, долгота={lng}")
+
+        # Координаты → адрес (обратное геокодирование)
+        addr_from_coords = coords_to_address.get(coords, "Адрес не найден")
+        print(f"Адрес по координатам: {addr_from_coords}")
 
         # Генерация карты
-        print("\n🗺️ Генерация карты по координатам...")
-        generator = StaticMapGenerator(width=400, height=300, zoom=14)
-        filename = "moscow_map.png"
+        filename = f"{address.replace(',', '').replace(' ', '_')}.png"
         generator.save_map(coords, filename)
-        print(f"✅ Карта сохранена: {filename}")
+        print(f"🗺️ Карта сохранена: {filename}")
+
