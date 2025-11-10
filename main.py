@@ -25,7 +25,8 @@ def execute_script(input_args):
     if parsed_args.test:
         print("Testing the app.")
         classObject = SimpleClass(config_file)
-
+    else:
+        print("Start the app.")
 
 def main():
     # Entry point to the app. Call in test method
