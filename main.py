@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from urbanisation_package.geolocator import get_coordinates
 from urbanisation_package.Urbanisation3 import StaticMapGenerator
 from urbanisation_package.UrbanizationAnalyzer import UrbanizationAnalyzer
@@ -18,9 +19,12 @@ def main():
     print(f"Найдено: {loc['address']}")
     print(f"Координаты: {coords}")
 
-    # 2. Генерируем PNG
+    # 2. Генерируем PNG в папке tmp_test_maps
+    output_dir = Path("tmp_test_maps")
+    output_dir.mkdir(exist_ok=True)
+    filename = output_dir / f"{place_name.replace(' ', '_')}.png"
+
     generator = StaticMapGenerator(width=600, height=450, zoom=14)
-    filename = f"{place_name.replace(' ', '_')}.png"
     generator.save_map(coords, filename)
     print(f"Файл карты сохранён: {filename}")
 
@@ -33,12 +37,12 @@ def main():
     print(f"  Природные зоны: {result['natural_percent']:.2f}%")
     print(f"  Остальное: {result['other_percent']:.2f}%")
 
-    # 4. Удаляем PNG
+    # 4. Удаляем PNG после анализа
     try:
-        os.remove(filename)
-        print(f"\nФайл {filename} удалён после анализа.")
+        filename.unlink()  # то же, что os.remove()
+        print(f"\nФайл {filename.name} удалён после анализа.")
     except OSError as e:
-        print(f"Ошибка при удалении {filename}: {e}")
+        print(f"Ошибка при удалении {filename.name}: {e}")
 
 
 if __name__ == "__main__":
