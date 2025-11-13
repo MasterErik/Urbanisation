@@ -1,36 +1,44 @@
-'''
-This is a scrip that will be used in the setup.py as an entry point.
-Instantiate all your classes here.
-'''
-import argparse
-import sys
-from urbanisation_package import project_root
-from urbanisation_package.SampleClass import SimpleClass
-
-
-def parse_input_args(argv):
-    ''' Parses command line arguments '''
-
-    parser = argparse.ArgumentParser(description=
-            "Description of the app that will be displayed when the script is executed.")
-    parser.add_argument('--test', help="Test the app.", dest="test",
-                        action='store_true', required=False)
-    return parser.parse_args(argv)
-
-
-def execute_script(input_args):
-    config_file = "{}/config.yaml".format(project_root.path())
-    parsed_args = parse_input_args(input_args)
-
-    if parsed_args.test:
-        print("Testing the app.")
-        classObject = SimpleClass(config_file)
-    else:
-        print("Start the app.")
+import os
+from urbanisation_package.geolocator import get_coordinates
+from urbanisation_package.Urbanisation3 import StaticMapGenerator
+from urbanisation_package.UrbanizationAnalyzer import UrbanizationAnalyzer
 
 def main():
-    # Entry point to the app. Call in test method
-    execute_script(sys.argv[1:])
+    place_name = input("Введите название места: ")
+
+    # 1. Получаем координаты
+    locations = get_coordinates(place_name)
+    if not locations:
+        print("Место не найдено.")
+        return
+
+    # Берём первую найденную точку
+    loc = locations[0]
+    coords = (loc["latitude"], loc["longitude"])
+    print(f"Найдено: {loc['address']}")
+    print(f"Координаты: {coords}")
+
+    # 2. Генерируем PNG
+    generator = StaticMapGenerator(width=600, height=450, zoom=14)
+    filename = f"{place_name.replace(' ', '_')}.png"
+    generator.save_map(coords, filename)
+    print(f"Файл карты сохранён: {filename}")
+
+    # 3. Анализируем PNG
+    analyzer = UrbanizationAnalyzer(filename)
+    result = analyzer.analyze()
+
+    print("\nРезультаты анализа:")
+    print(f"  Урбанизация: {result['urban_percent']:.2f}%")
+    print(f"  Природные зоны: {result['natural_percent']:.2f}%")
+    print(f"  Остальное: {result['other_percent']:.2f}%")
+
+    # 4. Удаляем PNG
+    try:
+        os.remove(filename)
+        print(f"\nФайл {filename} удалён после анализа.")
+    except OSError as e:
+        print(f"Ошибка при удалении {filename}: {e}")
 
 
 if __name__ == "__main__":
