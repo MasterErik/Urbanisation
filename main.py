@@ -4,16 +4,10 @@ from urbanisation_package.geolocator import get_coordinates
 from urbanisation_package.UrbanizationAnalyzer import UrbanizationAnalyzer
 
 def main():
-    place_name = input("Введите место: ")
-    locations = get_coordinates(place_name)
-
-    if locations:
-        loc = locations[0]
-        coords = (loc["latitude"], loc["longitude"])
-        print(f"Найдено: {loc['address']}")
-        print(f"Координаты: {coords}")
-    else:
-        print("Ничего не найдено")
+    # 1. Спрашиваем точку геолокации. Данные созданяются в result. Первое значение result[0]
+    place = input("Введите место: ").strip()  # спрашиваем место у пользователя
+    results = get_coordinates(place)
+    print(results[0])
 
     # 2. Генерируем PNG в папке tmp_test_maps
     output_dir = Path("tmp_test_maps")
