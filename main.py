@@ -1,23 +1,19 @@
 import os
 from pathlib import Path
 from urbanisation_package.geolocator import get_coordinates
-from urbanisation_package.Urbanisation3 import StaticMapGenerator
 from urbanisation_package.UrbanizationAnalyzer import UrbanizationAnalyzer
 
 def main():
-    place_name = input("Введите название места: ")
-
-    # 1. Получаем координаты
+    place_name = input("Введите место: ")
     locations = get_coordinates(place_name)
-    if not locations:
-        print("Место не найдено.")
-        return
 
-    # Берём первую найденную точку
-    loc = locations[0]
-    coords = (loc["latitude"], loc["longitude"])
-    print(f"Найдено: {loc['address']}")
-    print(f"Координаты: {coords}")
+    if locations:
+        loc = locations[0]
+        coords = (loc["latitude"], loc["longitude"])
+        print(f"Найдено: {loc['address']}")
+        print(f"Координаты: {coords}")
+    else:
+        print("Ничего не найдено")
 
     # 2. Генерируем PNG в папке tmp_test_maps
     output_dir = Path("tmp_test_maps")
