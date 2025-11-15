@@ -1,7 +1,9 @@
 import os
-from pathlib import Path
+
 from urbanisation_package.geolocator import get_coordinates
+from urbanisation_package.GeneratorMapPNG import get_PNG
 from urbanisation_package.UrbanizationAnalyzer import UrbanizationAnalyzer
+
 
 def main():
     place_name = input("Введите место: ")
@@ -16,12 +18,7 @@ def main():
         print("Ничего не найдено")
 
     # 2. Генерируем PNG в папке tmp_test_maps
-    output_dir = Path("tmp_test_maps")
-    output_dir.mkdir(exist_ok=True)
-    filename = output_dir / f"{place_name.replace(' ', '_')}.png"
-
-    generator = StaticMapGenerator(width=600, height=450, zoom=14)
-    generator.save_map(coords, filename)
+    filename = get_PNG(coords, place_name)
     print(f"Файл карты сохранён: {filename}")
 
     # 3. Анализируем PNG
